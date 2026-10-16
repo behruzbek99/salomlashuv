@@ -1,24 +1,217 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="uz">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Salom!</title>
+  <meta name="theme-color" content="#f3f6ff">
+  <meta name="description" content="Ismingizni kiriting va o‘zingizga xos samimiy salom oling.">
+  <title>Samimiy salom</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172554;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --line: #dbe4f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(191, 219, 254, .72), transparent 35%),
+        radial-gradient(ellipse at 90% 90%, rgba(221, 214, 254, .6), transparent 34%),
+        #f7f8fc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .card {
+      position: relative;
+      width: min(100%, 460px);
+      padding: clamp(28px, 7vw, 44px);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .9);
+      box-shadow: 0 24px 70px rgba(30, 64, 175, .12);
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: #4f6aa3;
+      font-size: .76rem;
+      font-weight: 750;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .icon {
+      display: grid;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border: 1px solid #dbeafe;
+      border-radius: 23px;
+      background: linear-gradient(145deg, #eff6ff, #f5f3ff);
+      font-size: 36px;
+    }
+
+    h1 { margin: 0; font-size: clamp(1.9rem, 7vw, 2.5rem); letter-spacing: -.045em; }
+    .description { max-width: 32ch; margin: 12px auto 30px; color: var(--muted); line-height: 1.65; }
+    label { display: block; margin-bottom: 8px; color: #334155; font-size: .9rem; font-weight: 650; text-align: left; }
+
+    input {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    input::placeholder { color: #94a3b8; }
+    input:focus { border-color: #60a5fa; box-shadow: 0 0 0 4px rgba(59, 130, 246, .14); }
+
+    button {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 720;
+      transition: background .18s, transform .18s, box-shadow .18s;
+    }
+
+    button:hover { background: var(--blue-dark); box-shadow: 0 8px 18px rgba(37, 99, 235, .2); }
+    button:active { transform: translateY(1px); }
+    button:focus-visible, .secondary:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
+
+    .result {
+      display: none;
+      margin-top: 22px;
+      padding: 18px 16px;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+      animation: appear .35s ease-out both;
+    }
+
+    .result.visible { display: block; }
+    .greeting { margin: 0; color: #1d4ed8; font-size: clamp(1.25rem, 5vw, 1.55rem); font-weight: 780; overflow-wrap: anywhere; }
+    .wish { margin: 8px 0 0; color: #475569; font-size: .94rem; line-height: 1.5; }
+
+    .secondary {
+      display: none;
+      width: auto;
+      min-height: 40px;
+      margin: 12px auto 0;
+      padding: 0 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 11px;
+      background: #fff;
+      color: #334155;
+      font-size: .9rem;
+      font-weight: 650;
+    }
+
+    .secondary:hover { border-color: #93c5fd; background: #f8fafc; box-shadow: none; }
+    .secondary.visible { display: inline-block; }
+    .error { min-height: 1.35em; margin: 9px 0 0; color: #b91c1c; font-size: .88rem; text-align: left; }
+    .footer { margin: 26px 0 0; color: #94a3b8; font-size: .78rem; }
+
+    @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 480px) { body { padding: 16px; } .card { border-radius: 23px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
 </head>
 <body>
-  <h1>Salom!</h1>
-  <label for="ism">Ismingiz:</label>
-  <input id="ism" type="text" placeholder="Ismingizni kiriting">
-  <button id="salomlash">Salom berish</button>
-  <p id="javob" aria-live="polite"></p>
+  <main class="card">
+    <p class="eyebrow">Bir oz mehr sizga</p>
+    <div class="icon" aria-hidden="true">👋</div>
+    <h1>Salom, do‘stim!</h1>
+    <p class="description">Ismingizni yozing — siz uchun samimiy salom va kichik tilak tayyorlaymiz.</p>
+
+    <form id="salom-form" novalidate>
+      <label for="ism">Ismingiz</label>
+      <input id="ism" name="ism" type="text" placeholder="Masalan, Aziz" autocomplete="given-name" maxlength="60" aria-describedby="xato" required>
+      <p id="xato" class="error" aria-live="polite"></p>
+      <button type="submit">Menga salom berish <span aria-hidden="true">→</span></button>
+    </form>
+
+    <section id="natija" class="result" aria-live="polite" aria-atomic="true">
+      <p id="salom" class="greeting"></p>
+      <p id="tilak" class="wish"></p>
+    </section>
+    <button id="qayta" class="secondary" type="button">Yana salomlashish</button>
+    <p class="footer">Kuningiz chiroyli o‘tsin ☀️</p>
+  </main>
 
   <script>
-    const ismInput = document.getElementById('ism');
-    const javob = document.getElementById('javob');
+    const form = document.getElementById('salom-form');
+    const input = document.getElementById('ism');
+    const error = document.getElementById('xato');
+    const result = document.getElementById('natija');
+    const greeting = document.getElementById('salom');
+    const wish = document.getElementById('tilak');
+    const again = document.getElementById('qayta');
+    const wishes = [
+      'Bugun sizga quvonch va omad hamroh bo‘lsin!',
+      'Har bir ishingiz ko‘ngildagidek bo‘lsin!',
+      'Kuningiz yaxshi kayfiyat va yoqimli yangiliklarga boy bo‘lsin!',
+      'Bugun o‘zingiz uchun ham bir oz vaqt ajrating — bunga arziysiz!'
+    ];
 
-    document.getElementById('salomlash').addEventListener('click', () => {
-      const ism = ismInput.value.trim();
-      javob.textContent = ism ? `Salom, ${ism}!` : 'Iltimos, ismingizni kiriting.';
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = input.value.trim();
+      if (!name) {
+        error.textContent = 'Salomlashishimiz uchun ismingizni yozing.';
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+        return;
+      }
+      error.textContent = '';
+      input.removeAttribute('aria-invalid');
+      greeting.textContent = `Salom, ${name}!`;
+      wish.textContent = wishes[Math.floor(Math.random() * wishes.length)];
+      result.classList.remove('visible');
+      requestAnimationFrame(() => result.classList.add('visible'));
+      again.classList.add('visible');
+    });
+
+    input.addEventListener('input', () => {
+      if (input.value.trim()) {
+        error.textContent = '';
+        input.removeAttribute('aria-invalid');
+      }
+    });
+
+    again.addEventListener('click', () => {
+      input.value = '';
+      error.textContent = '';
+      result.classList.remove('visible');
+      again.classList.remove('visible');
+      input.removeAttribute('aria-invalid');
+      input.focus();
     });
   </script>
 </body>
