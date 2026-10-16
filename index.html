@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salom!</title>
+</head>
+<body>
+  <h1>Salom!</h1>
+  <label for="ism">Ismingiz:</label>
+  <input id="ism" type="text" placeholder="Ismingizni kiriting">
+  <button id="salomlash">Salom berish</button>
+  <p id="javob" aria-live="polite"></p>
+
+  <script>
+    const ismInput = document.getElementById('ism');
+    const javob = document.getElementById('javob');
+
+    document.getElementById('salomlash').addEventListener('click', () => {
+      const ism = ismInput.value.trim();
+      javob.textContent = ism ? `Salom, ${ism}!` : 'Iltimos, ismingizni kiriting.';
+    });
+  </script>
+</body>
+</html>
