@@ -18,37 +18,35 @@
     .card {
       width: min(100%, 480px); padding: clamp(28px, 7vw, 48px); text-align: center;
       border: 1px solid rgba(255,255,255,.9); border-radius: 30px;
-      background: rgba(255,255,255,.82); box-shadow: 0 24px 70px rgba(113,61,83,.13);
+      background: rgba(255,255,255,.84); box-shadow: 0 24px 70px rgba(113,61,83,.13);
       backdrop-filter: blur(10px);
     }
-    .cake { margin-bottom: 10px; font-family: system-ui, sans-serif; font-size: 48px; }
+    .cake { margin-bottom: 10px; font-family: system-ui, sans-serif; font-size: 48px; filter: drop-shadow(0 5px 8px #e9b7bf66); }
     h1 { margin: 0; font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.12; letter-spacing: -.045em; }
-    .intro { margin: 12px 0 28px; color: var(--muted); font-family: system-ui, sans-serif; font-size: .98rem; line-height: 1.6; }
+    .intro { margin: 12px 0 27px; color: var(--muted); font-family: system-ui, sans-serif; font-size: .96rem; line-height: 1.6; }
     label { display: block; margin-bottom: 8px; color: #624655; font-family: system-ui, sans-serif; font-size: .88rem; font-weight: 650; text-align: left; }
-    input {
-      width: 100%; min-height: 52px; padding: 0 15px; border: 1px solid #ead8df; border-radius: 13px;
-      outline: none; background: #fffdfc; color: var(--ink); font: 1rem system-ui, sans-serif; transition: .2s;
-    }
+    input { width: 100%; min-height: 52px; padding: 0 15px; border: 1px solid #ead8df; border-radius: 13px; outline: none; background: #fffdfc; color: var(--ink); font: 1rem system-ui, sans-serif; transition: .2s; }
     input::placeholder { color: #b59eaa; }
     input:focus { border-color: #db87a3; box-shadow: 0 0 0 4px rgba(198,83,119,.12); }
-    button {
-      width: 100%; min-height: 51px; margin-top: 13px; border: 0; border-radius: 13px;
-      background: var(--rose); color: white; cursor: pointer; font: 650 .98rem system-ui, sans-serif;
-      transition: background .18s, transform .18s, box-shadow .18s;
-    }
-    button:hover { background: var(--rose-dark); box-shadow: 0 8px 18px rgba(198,83,119,.2); }
+    button { min-height: 48px; border: 0; border-radius: 13px; background: var(--rose); color: white; cursor: pointer; font: 650 .94rem system-ui, sans-serif; transition: background .18s, transform .18s, box-shadow .18s; }
+    button:hover { background: var(--rose-dark); box-shadow: 0 7px 16px rgba(198,83,119,.18); }
     button:active { transform: translateY(1px); }
     button:focus-visible { outline: 3px solid #e9a5b9; outline-offset: 3px; }
+    .submit { width: 100%; margin-top: 13px; }
     .error { min-height: 1.25em; margin: 8px 0 0; color: #a83252; font: .86rem system-ui, sans-serif; text-align: left; }
-    .result { display: none; margin-top: 22px; padding: 21px 18px; border: 1px solid #f3d9df; border-radius: 18px; background: linear-gradient(140deg,#fff3f0,#fbf2ff); animation: appear .35s ease-out both; }
+    .result { display: none; margin-top: 22px; padding: 22px 18px; border: 1px solid #f3d9df; border-radius: 18px; background: linear-gradient(140deg,#fff3f0,#fbf2ff); animation: appear .35s ease-out both; }
     .result.visible { display: block; }
-    .greeting { margin: 0; color: #a83c61; font-size: clamp(1.35rem, 5vw, 1.65rem); font-weight: 700; overflow-wrap: anywhere; }
-    .wish { margin: 12px 0 0; color: #634b59; font-size: 1.04rem; line-height: 1.65; }
-    .again { display: none; width: auto; min-height: 40px; margin: 13px auto 0; padding: 0 15px; border: 1px solid #ead8df; background: white; color: #704d5d; font-size: .88rem; }
-    .again.visible { display: inline-block; }
-    .again:hover { background: #fff8fa; box-shadow: none; }
+    .greeting { margin: 0; color: #a83c61; font-size: clamp(1.3rem, 5vw, 1.6rem); font-weight: 700; overflow-wrap: anywhere; }
+    .wish { margin: 12px 0 0; color: #634b59; font-size: 1.02rem; line-height: 1.65; }
+    .actions { display: none; gap: 9px; margin-top: 13px; }
+    .actions.visible { display: flex; }
+    .actions button { flex: 1; padding: 0 10px; font-size: .86rem; }
+    .actions .light { border: 1px solid #ead8df; background: #fff; color: #704d5d; }
+    .actions .light:hover { background: #fff8fa; box-shadow: none; }
+    .status { min-height: 1.2em; margin: 9px 0 0; color: #806b79; font: .82rem system-ui, sans-serif; }
     @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 480px) { body { padding: 15px; } .card { border-radius: 24px; } }
+    @media (max-width: 360px) { .actions { flex-direction: column; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
 </head>
@@ -56,20 +54,24 @@
   <main class="card">
     <div class="cake" aria-hidden="true">🎂</div>
     <h1>Tug‘ilgan kuning bilan!</h1>
-    <p class="intro">Ismingizni yozing — sizga atalgan tabrikni aytamiz.</p>
+    <p class="intro">Ismingizni yozing — siz uchun samimiy tabrik tayyorlaymiz.</p>
 
     <form id="birthday-form" novalidate>
       <label for="name">Ismingiz</label>
       <input id="name" type="text" placeholder="Ismingizni kiriting" autocomplete="given-name" maxlength="60" aria-describedby="error" required>
       <p id="error" class="error" aria-live="polite"></p>
-      <button type="submit">Tabrikni ko‘rish <span aria-hidden="true">♥</span></button>
+      <button class="submit" type="submit">Tabrikni ko‘rish <span aria-hidden="true">♥</span></button>
     </form>
 
     <section id="result" class="result" aria-live="polite" aria-atomic="true">
       <p id="greeting" class="greeting"></p>
       <p id="wish" class="wish"></p>
     </section>
-    <button id="again" class="again" type="button">Boshqa ism yozish</button>
+    <div id="actions" class="actions">
+      <button id="refresh" class="light" type="button">Yana bir tilak</button>
+      <button id="copy" type="button">Tabrikni nusxalash</button>
+    </div>
+    <p id="status" class="status" aria-live="polite"></p>
   </main>
 
   <script>
@@ -79,13 +81,23 @@
     const result = document.getElementById('result');
     const greeting = document.getElementById('greeting');
     const wish = document.getElementById('wish');
-    const again = document.getElementById('again');
+    const actions = document.getElementById('actions');
+    const status = document.getElementById('status');
     const wishes = [
       'Yangi yoshingiz quvonch, mehr va unutilmas go‘zal lahzalarga boy bo‘lsin. Doimo kulib yuring!',
       'Ko‘nglingizdagi eng ezgu tilaklar ushalsin. Hayotingiz mehr, baxt va yorug‘ kunlarga to‘lsin!',
-      'Har bir kuningiz bugungidek fayzli o‘tsin. Sizga sihat-salomatlik, cheksiz baxt va ko‘p quvonch tilayman!',
-      'Yangi yoshingiz yangi orzular va chiroyli imkoniyatlar olib kelsin. Yaqinlaringiz mehridan doimo bahramand bo‘ling!'
+      'Sizga sihat-salomatlik, cheksiz baxt va har kuni kulib yurishingizni tilayman. Tug‘ilgan kuningiz muborak!',
+      'Yangi yoshingiz yangi orzular va chiroyli imkoniyatlar olib kelsin. Yaqinlaringiz mehridan doimo bahramand bo‘ling!',
+      'Qalbingiz doimo xotirjam, yuzingizdan tabassum arimasin. Eng go‘zal tilaklar siz uchun ushalsin!'
     ];
+    let previousWish = -1;
+
+    function showWish() {
+      let index = Math.floor(Math.random() * wishes.length);
+      if (wishes.length > 1 && index === previousWish) index = (index + 1) % wishes.length;
+      previousWish = index;
+      wish.textContent = wishes[index];
+    }
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -97,12 +109,37 @@
         return;
       }
       error.textContent = '';
+      status.textContent = '';
       nameInput.removeAttribute('aria-invalid');
       greeting.textContent = `Aziz ${name}, tug‘ilgan kuningiz muborak!`;
-      wish.textContent = wishes[Math.floor(Math.random() * wishes.length)];
+      showWish();
       result.classList.remove('visible');
       requestAnimationFrame(() => result.classList.add('visible'));
-      again.classList.add('visible');
+      actions.classList.add('visible');
+    });
+
+    document.getElementById('refresh').addEventListener('click', () => {
+      showWish();
+      status.textContent = '';
+    });
+
+    document.getElementById('copy').addEventListener('click', async () => {
+      const message = `${greeting.textContent}\n\n${wish.textContent}`;
+      try {
+        await navigator.clipboard.writeText(message);
+        status.textContent = 'Tabrik nusxalandi!';
+      } catch {
+        const helper = document.createElement('textarea');
+        helper.value = message;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        const copied = document.execCommand('copy');
+        helper.remove();
+        status.textContent = copied ? 'Tabrik nusxalandi!' : 'Tabrikni tanlab nusxalashingiz mumkin.';
+      }
     });
 
     nameInput.addEventListener('input', () => {
@@ -110,15 +147,6 @@
         error.textContent = '';
         nameInput.removeAttribute('aria-invalid');
       }
-    });
-
-    again.addEventListener('click', () => {
-      nameInput.value = '';
-      error.textContent = '';
-      result.classList.remove('visible');
-      again.classList.remove('visible');
-      nameInput.removeAttribute('aria-invalid');
-      nameInput.focus();
     });
   </script>
 </body>
