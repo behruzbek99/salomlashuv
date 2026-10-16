@@ -3,215 +3,122 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f3f6ff">
-  <meta name="description" content="Ismingizni kiriting va o‘zingizga xos samimiy salom oling.">
-  <title>Samimiy salom</title>
+  <meta name="theme-color" content="#fff7f0">
+  <meta name="description" content="Ismingizga atalgan samimiy tug‘ilgan kun tabrigi.">
+  <title>Tug‘ilgan kuning bilan!</title>
   <style>
-    :root {
-      color-scheme: light;
-      --ink: #172554;
-      --muted: #64748b;
-      --blue: #2563eb;
-      --blue-dark: #1d4ed8;
-      --line: #dbe4f0;
-    }
-
+    :root { color-scheme: light; --ink: #42283b; --muted: #806b79; --rose: #c65377; --rose-dark: #a83c61; }
     * { box-sizing: border-box; }
-
     body {
-      min-height: 100vh;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      overflow-x: hidden;
-      color: var(--ink);
-      background:
-        radial-gradient(ellipse at 15% 10%, rgba(191, 219, 254, .72), transparent 35%),
-        radial-gradient(ellipse at 90% 90%, rgba(221, 214, 254, .6), transparent 34%),
-        #f7f8fc;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 22px;
+      color: var(--ink); background: radial-gradient(ellipse at 10% 12%, #ffe1d6 0, transparent 38%),
+      radial-gradient(ellipse at 92% 88%, #eadfff 0, transparent 38%), #fff8f3;
+      font-family: Georgia, "Times New Roman", serif;
     }
-
     .card {
-      position: relative;
-      width: min(100%, 460px);
-      padding: clamp(28px, 7vw, 44px);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, .9);
-      border-radius: 28px;
-      background: rgba(255, 255, 255, .9);
-      box-shadow: 0 24px 70px rgba(30, 64, 175, .12);
-      text-align: center;
-      backdrop-filter: blur(12px);
+      width: min(100%, 480px); padding: clamp(28px, 7vw, 48px); text-align: center;
+      border: 1px solid rgba(255,255,255,.9); border-radius: 30px;
+      background: rgba(255,255,255,.82); box-shadow: 0 24px 70px rgba(113,61,83,.13);
+      backdrop-filter: blur(10px);
     }
-
-    .eyebrow {
-      margin: 0 0 18px;
-      color: #4f6aa3;
-      font-size: .76rem;
-      font-weight: 750;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-
-    .icon {
-      display: grid;
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 20px;
-      place-items: center;
-      border: 1px solid #dbeafe;
-      border-radius: 23px;
-      background: linear-gradient(145deg, #eff6ff, #f5f3ff);
-      font-size: 36px;
-    }
-
-    h1 { margin: 0; font-size: clamp(1.9rem, 7vw, 2.5rem); letter-spacing: -.045em; }
-    .description { max-width: 32ch; margin: 12px auto 30px; color: var(--muted); line-height: 1.65; }
-    label { display: block; margin-bottom: 8px; color: #334155; font-size: .9rem; font-weight: 650; text-align: left; }
-
+    .cake { margin-bottom: 10px; font-family: system-ui, sans-serif; font-size: 48px; }
+    h1 { margin: 0; font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.12; letter-spacing: -.045em; }
+    .intro { margin: 12px 0 28px; color: var(--muted); font-family: system-ui, sans-serif; font-size: .98rem; line-height: 1.6; }
+    label { display: block; margin-bottom: 8px; color: #624655; font-family: system-ui, sans-serif; font-size: .88rem; font-weight: 650; text-align: left; }
     input {
-      width: 100%;
-      min-height: 54px;
-      padding: 0 16px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      outline: none;
-      background: #fff;
-      color: var(--ink);
-      font: inherit;
-      transition: border-color .2s, box-shadow .2s;
+      width: 100%; min-height: 52px; padding: 0 15px; border: 1px solid #ead8df; border-radius: 13px;
+      outline: none; background: #fffdfc; color: var(--ink); font: 1rem system-ui, sans-serif; transition: .2s;
     }
-
-    input::placeholder { color: #94a3b8; }
-    input:focus { border-color: #60a5fa; box-shadow: 0 0 0 4px rgba(59, 130, 246, .14); }
-
+    input::placeholder { color: #b59eaa; }
+    input:focus { border-color: #db87a3; box-shadow: 0 0 0 4px rgba(198,83,119,.12); }
     button {
-      width: 100%;
-      min-height: 52px;
-      margin-top: 14px;
-      border: 0;
-      border-radius: 14px;
-      background: var(--blue);
-      color: #fff;
-      cursor: pointer;
-      font: inherit;
-      font-weight: 720;
+      width: 100%; min-height: 51px; margin-top: 13px; border: 0; border-radius: 13px;
+      background: var(--rose); color: white; cursor: pointer; font: 650 .98rem system-ui, sans-serif;
       transition: background .18s, transform .18s, box-shadow .18s;
     }
-
-    button:hover { background: var(--blue-dark); box-shadow: 0 8px 18px rgba(37, 99, 235, .2); }
+    button:hover { background: var(--rose-dark); box-shadow: 0 8px 18px rgba(198,83,119,.2); }
     button:active { transform: translateY(1px); }
-    button:focus-visible, .secondary:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
-
-    .result {
-      display: none;
-      margin-top: 22px;
-      padding: 18px 16px;
-      border: 1px solid #dbeafe;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #eff6ff, #f5f3ff);
-      animation: appear .35s ease-out both;
-    }
-
+    button:focus-visible { outline: 3px solid #e9a5b9; outline-offset: 3px; }
+    .error { min-height: 1.25em; margin: 8px 0 0; color: #a83252; font: .86rem system-ui, sans-serif; text-align: left; }
+    .result { display: none; margin-top: 22px; padding: 21px 18px; border: 1px solid #f3d9df; border-radius: 18px; background: linear-gradient(140deg,#fff3f0,#fbf2ff); animation: appear .35s ease-out both; }
     .result.visible { display: block; }
-    .greeting { margin: 0; color: #1d4ed8; font-size: clamp(1.25rem, 5vw, 1.55rem); font-weight: 780; overflow-wrap: anywhere; }
-    .wish { margin: 8px 0 0; color: #475569; font-size: .94rem; line-height: 1.5; }
-
-    .secondary {
-      display: none;
-      width: auto;
-      min-height: 40px;
-      margin: 12px auto 0;
-      padding: 0 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 11px;
-      background: #fff;
-      color: #334155;
-      font-size: .9rem;
-      font-weight: 650;
-    }
-
-    .secondary:hover { border-color: #93c5fd; background: #f8fafc; box-shadow: none; }
-    .secondary.visible { display: inline-block; }
-    .error { min-height: 1.35em; margin: 9px 0 0; color: #b91c1c; font-size: .88rem; text-align: left; }
-    .footer { margin: 26px 0 0; color: #94a3b8; font-size: .78rem; }
-
+    .greeting { margin: 0; color: #a83c61; font-size: clamp(1.35rem, 5vw, 1.65rem); font-weight: 700; overflow-wrap: anywhere; }
+    .wish { margin: 12px 0 0; color: #634b59; font-size: 1.04rem; line-height: 1.65; }
+    .again { display: none; width: auto; min-height: 40px; margin: 13px auto 0; padding: 0 15px; border: 1px solid #ead8df; background: white; color: #704d5d; font-size: .88rem; }
+    .again.visible { display: inline-block; }
+    .again:hover { background: #fff8fa; box-shadow: none; }
     @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 480px) { body { padding: 16px; } .card { border-radius: 23px; } }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+    @media (max-width: 480px) { body { padding: 15px; } .card { border-radius: 24px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
 </head>
 <body>
   <main class="card">
-    <p class="eyebrow">Bir oz mehr sizga</p>
-    <div class="icon" aria-hidden="true">👋</div>
-    <h1>Salom, do‘stim!</h1>
-    <p class="description">Ismingizni yozing — siz uchun samimiy salom va kichik tilak tayyorlaymiz.</p>
+    <div class="cake" aria-hidden="true">🎂</div>
+    <h1>Tug‘ilgan kuning bilan!</h1>
+    <p class="intro">Ismingizni yozing — sizga atalgan tabrikni aytamiz.</p>
 
-    <form id="salom-form" novalidate>
-      <label for="ism">Ismingiz</label>
-      <input id="ism" name="ism" type="text" placeholder="Masalan, Aziz" autocomplete="given-name" maxlength="60" aria-describedby="xato" required>
-      <p id="xato" class="error" aria-live="polite"></p>
-      <button type="submit">Menga salom berish <span aria-hidden="true">→</span></button>
+    <form id="birthday-form" novalidate>
+      <label for="name">Ismingiz</label>
+      <input id="name" type="text" placeholder="Ismingizni kiriting" autocomplete="given-name" maxlength="60" aria-describedby="error" required>
+      <p id="error" class="error" aria-live="polite"></p>
+      <button type="submit">Tabrikni ko‘rish <span aria-hidden="true">♥</span></button>
     </form>
 
-    <section id="natija" class="result" aria-live="polite" aria-atomic="true">
-      <p id="salom" class="greeting"></p>
-      <p id="tilak" class="wish"></p>
+    <section id="result" class="result" aria-live="polite" aria-atomic="true">
+      <p id="greeting" class="greeting"></p>
+      <p id="wish" class="wish"></p>
     </section>
-    <button id="qayta" class="secondary" type="button">Yana salomlashish</button>
-    <p class="footer">Kuningiz chiroyli o‘tsin ☀️</p>
+    <button id="again" class="again" type="button">Boshqa ism yozish</button>
   </main>
 
   <script>
-    const form = document.getElementById('salom-form');
-    const input = document.getElementById('ism');
-    const error = document.getElementById('xato');
-    const result = document.getElementById('natija');
-    const greeting = document.getElementById('salom');
-    const wish = document.getElementById('tilak');
-    const again = document.getElementById('qayta');
+    const form = document.getElementById('birthday-form');
+    const nameInput = document.getElementById('name');
+    const error = document.getElementById('error');
+    const result = document.getElementById('result');
+    const greeting = document.getElementById('greeting');
+    const wish = document.getElementById('wish');
+    const again = document.getElementById('again');
     const wishes = [
-      'Bugun sizga quvonch va omad hamroh bo‘lsin!',
-      'Har bir ishingiz ko‘ngildagidek bo‘lsin!',
-      'Kuningiz yaxshi kayfiyat va yoqimli yangiliklarga boy bo‘lsin!',
-      'Bugun o‘zingiz uchun ham bir oz vaqt ajrating — bunga arziysiz!'
+      'Yangi yoshingiz quvonch, mehr va unutilmas go‘zal lahzalarga boy bo‘lsin. Doimo kulib yuring!',
+      'Ko‘nglingizdagi eng ezgu tilaklar ushalsin. Hayotingiz mehr, baxt va yorug‘ kunlarga to‘lsin!',
+      'Har bir kuningiz bugungidek fayzli o‘tsin. Sizga sihat-salomatlik, cheksiz baxt va ko‘p quvonch tilayman!',
+      'Yangi yoshingiz yangi orzular va chiroyli imkoniyatlar olib kelsin. Yaqinlaringiz mehridan doimo bahramand bo‘ling!'
     ];
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      const name = input.value.trim();
+      const name = nameInput.value.trim();
       if (!name) {
-        error.textContent = 'Salomlashishimiz uchun ismingizni yozing.';
-        input.setAttribute('aria-invalid', 'true');
-        input.focus();
+        error.textContent = 'Avval ismingizni yozing.';
+        nameInput.setAttribute('aria-invalid', 'true');
+        nameInput.focus();
         return;
       }
       error.textContent = '';
-      input.removeAttribute('aria-invalid');
-      greeting.textContent = `Salom, ${name}!`;
+      nameInput.removeAttribute('aria-invalid');
+      greeting.textContent = `Aziz ${name}, tug‘ilgan kuningiz muborak!`;
       wish.textContent = wishes[Math.floor(Math.random() * wishes.length)];
       result.classList.remove('visible');
       requestAnimationFrame(() => result.classList.add('visible'));
       again.classList.add('visible');
     });
 
-    input.addEventListener('input', () => {
-      if (input.value.trim()) {
+    nameInput.addEventListener('input', () => {
+      if (nameInput.value.trim()) {
         error.textContent = '';
-        input.removeAttribute('aria-invalid');
+        nameInput.removeAttribute('aria-invalid');
       }
     });
 
     again.addEventListener('click', () => {
-      input.value = '';
+      nameInput.value = '';
       error.textContent = '';
       result.classList.remove('visible');
       again.classList.remove('visible');
-      input.removeAttribute('aria-invalid');
-      input.focus();
+      nameInput.removeAttribute('aria-invalid');
+      nameInput.focus();
     });
   </script>
 </body>
