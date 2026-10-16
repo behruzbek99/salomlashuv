@@ -7,52 +7,175 @@
   <meta name="description" content="Ismingizga atalgan samimiy tug‘ilgan kun tabrigi.">
   <title>Tug‘ilgan kuning bilan!</title>
   <style>
-    :root { color-scheme: light; --ink: #42283b; --muted: #806b79; --rose: #c65377; --rose-dark: #a83c61; }
+    :root {
+      color-scheme: light;
+      --ink: #42283b;
+      --muted: #806b79;
+      --rose: #c65377;
+      --rose-dark: #a83c61;
+      --gold: #e9b968;
+    }
+
     * { box-sizing: border-box; }
+
     body {
-      min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 22px;
-      color: var(--ink); background: radial-gradient(ellipse at 10% 12%, #ffe1d6 0, transparent 38%),
-      radial-gradient(ellipse at 92% 88%, #eadfff 0, transparent 38%), #fff8f3;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 10%, rgba(255, 210, 194, .8), transparent 36%),
+        radial-gradient(ellipse at 91% 86%, rgba(220, 207, 255, .72), transparent 38%),
+        radial-gradient(ellipse at 76% 7%, rgba(255, 238, 190, .55), transparent 29%),
+        #fff8f3;
       font-family: Georgia, "Times New Roman", serif;
     }
-    .card {
-      width: min(100%, 480px); padding: clamp(28px, 7vw, 48px); text-align: center;
-      border: 1px solid rgba(255,255,255,.9); border-radius: 30px;
-      background: rgba(255,255,255,.84); box-shadow: 0 24px 70px rgba(113,61,83,.13);
-      backdrop-filter: blur(10px);
+
+    .glow {
+      position: fixed;
+      z-index: -1;
+      width: 230px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(255, 214, 198, .28);
+      filter: blur(46px);
+      pointer-events: none;
+      animation: float 9s ease-in-out infinite alternate;
     }
-    .cake { margin-bottom: 10px; font-family: system-ui, sans-serif; font-size: 48px; filter: drop-shadow(0 5px 8px #e9b7bf66); }
-    h1 { margin: 0; font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.12; letter-spacing: -.045em; }
-    .intro { margin: 12px 0 27px; color: var(--muted); font-family: system-ui, sans-serif; font-size: .96rem; line-height: 1.6; }
+    .glow-one { top: 12%; left: -100px; }
+    .glow-two { right: -100px; bottom: 8%; background: rgba(217, 205, 255, .32); animation-delay: -4s; }
+
+    .card {
+      position: relative;
+      width: min(100%, 490px);
+      padding: clamp(29px, 7vw, 49px);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 31px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 26px 80px rgba(113,61,83,.14), inset 0 1px 0 white;
+      text-align: center;
+      backdrop-filter: blur(14px);
+      animation: card-in .8s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .card::before, .card::after {
+      position: absolute;
+      width: 94px;
+      height: 94px;
+      border: 1px solid rgba(230, 188, 157, .3);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+    .card::before { top: -62px; left: -54px; box-shadow: 16px 14px 0 -8px rgba(255,255,255,.4); }
+    .card::after { right: -65px; bottom: -63px; width: 125px; height: 125px; }
+
+    .cake {
+      position: relative;
+      display: grid;
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 16px;
+      place-items: center;
+      border: 1px solid #f4dfdc;
+      border-radius: 27px;
+      background: linear-gradient(145deg, #fff3e8, #fff0f5);
+      box-shadow: 0 10px 24px rgba(198,83,119,.12);
+      font-family: system-ui, sans-serif;
+      font-size: 43px;
+      animation: cake-in .85s .12s cubic-bezier(.2,.8,.2,1) both, cake-bob 3.6s 1s ease-in-out infinite;
+    }
+    .sparkle { position: absolute; color: #d59a4d; font: 16px system-ui, sans-serif; animation: twinkle 2.2s ease-in-out infinite; }
+    .sparkle-a { top: -8px; right: -12px; }
+    .sparkle-b { bottom: 1px; left: -13px; font-size: 12px; animation-delay: .7s; }
+
+    h1 { margin: 0; font-size: clamp(2rem, 8vw, 2.75rem); line-height: 1.12; letter-spacing: -.05em; animation: fade-up .65s .2s both; }
+    .intro { margin: 12px 0 27px; color: var(--muted); font-family: system-ui, sans-serif; font-size: .96rem; line-height: 1.6; animation: fade-up .65s .3s both; }
     label { display: block; margin-bottom: 8px; color: #624655; font-family: system-ui, sans-serif; font-size: .88rem; font-weight: 650; text-align: left; }
-    input { width: 100%; min-height: 52px; padding: 0 15px; border: 1px solid #ead8df; border-radius: 13px; outline: none; background: #fffdfc; color: var(--ink); font: 1rem system-ui, sans-serif; transition: .2s; }
+
+    input {
+      width: 100%;
+      min-height: 53px;
+      padding: 0 16px;
+      border: 1px solid #ead8df;
+      border-radius: 14px;
+      outline: none;
+      background: rgba(255,253,252,.92);
+      color: var(--ink);
+      font: 1rem system-ui, sans-serif;
+      transition: border-color .22s, box-shadow .22s, background .22s, transform .22s;
+    }
     input::placeholder { color: #b59eaa; }
-    input:focus { border-color: #db87a3; box-shadow: 0 0 0 4px rgba(198,83,119,.12); }
-    button { min-height: 48px; border: 0; border-radius: 13px; background: var(--rose); color: white; cursor: pointer; font: 650 .94rem system-ui, sans-serif; transition: background .18s, transform .18s, box-shadow .18s; }
-    button:hover { background: var(--rose-dark); box-shadow: 0 7px 16px rgba(198,83,119,.18); }
-    button:active { transform: translateY(1px); }
+    input:focus { transform: translateY(-1px); border-color: #db87a3; background: white; box-shadow: 0 0 0 4px rgba(198,83,119,.12), 0 5px 16px rgba(113,61,83,.06); }
+
+    button {
+      min-height: 49px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--rose);
+      color: white;
+      cursor: pointer;
+      font: 650 .94rem system-ui, sans-serif;
+      transition: background .2s, transform .2s, box-shadow .2s;
+    }
+    button:hover { transform: translateY(-2px); background: var(--rose-dark); box-shadow: 0 9px 20px rgba(198,83,119,.24); }
+    button:active { transform: translateY(0) scale(.99); }
     button:focus-visible { outline: 3px solid #e9a5b9; outline-offset: 3px; }
-    .submit { width: 100%; margin-top: 13px; }
+    .submit { width: 100%; margin-top: 13px; box-shadow: 0 6px 15px rgba(198,83,119,.16); }
+    .submit span { display: inline-block; margin-left: 3px; transition: transform .2s; }
+    .submit:hover span { transform: scale(1.2) rotate(-10deg); }
+
     .error { min-height: 1.25em; margin: 8px 0 0; color: #a83252; font: .86rem system-ui, sans-serif; text-align: left; }
-    .result { display: none; margin-top: 22px; padding: 22px 18px; border: 1px solid #f3d9df; border-radius: 18px; background: linear-gradient(140deg,#fff3f0,#fbf2ff); animation: appear .35s ease-out both; }
-    .result.visible { display: block; }
+    .result {
+      display: none;
+      margin-top: 22px;
+      padding: 23px 19px;
+      border: 1px solid #f2d8df;
+      border-radius: 19px;
+      background: linear-gradient(140deg, rgba(255,243,240,.96), rgba(250,242,255,.96));
+      box-shadow: 0 8px 24px rgba(152,93,120,.08);
+      transform-origin: 50% 0;
+    }
+    .result.visible { display: block; animation: card-open .65s cubic-bezier(.16,1,.3,1) both; }
     .greeting { margin: 0; color: #a83c61; font-size: clamp(1.3rem, 5vw, 1.6rem); font-weight: 700; overflow-wrap: anywhere; }
     .wish { margin: 12px 0 0; color: #634b59; font-size: 1.02rem; line-height: 1.65; }
-    .actions { display: none; gap: 9px; margin-top: 13px; }
-    .actions.visible { display: flex; }
+    .result.visible .greeting { animation: fade-up .5s .16s both; }
+    .result.visible .wish { animation: fade-up .5s .27s both; }
+
+    .actions { display: none; gap: 10px; margin-top: 13px; }
+    .actions.visible { display: flex; animation: fade-up .45s .24s both; }
     .actions button { flex: 1; padding: 0 10px; font-size: .86rem; }
-    .actions .light { border: 1px solid #ead8df; background: #fff; color: #704d5d; }
-    .actions .light:hover { background: #fff8fa; box-shadow: none; }
+    .actions .light { border: 1px solid #ead8df; background: white; color: #704d5d; }
+    .actions .light:hover { background: #fff8fa; box-shadow: 0 7px 15px rgba(113,61,83,.08); }
     .status { min-height: 1.2em; margin: 9px 0 0; color: #806b79; font: .82rem system-ui, sans-serif; }
-    @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 480px) { body { padding: 15px; } .card { border-radius: 24px; } }
+
+    .confetti { position: fixed; z-index: 5; top: -18px; width: 9px; height: 14px; border-radius: 2px; pointer-events: none; animation: confetti-fall var(--fall-time, 2.6s) cubic-bezier(.2,.65,.4,1) forwards; }
+
+    @keyframes card-in { from { opacity: 0; transform: translateY(18px) scale(.975); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes cake-in { from { opacity: 0; transform: scale(.65) rotate(-12deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+    @keyframes cake-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes card-open { 0% { opacity: 0; transform: perspective(700px) rotateX(-9deg) translateY(10px) scale(.97); } 70% { opacity: 1; transform: perspective(700px) rotateX(2deg) translateY(-2px) scale(1.01); } 100% { opacity: 1; transform: perspective(700px) rotateX(0) translateY(0) scale(1); } }
+    @keyframes float { from { transform: translate3d(0,-8px,0) scale(.95); } to { transform: translate3d(18px,18px,0) scale(1.08); } }
+    @keyframes twinkle { 0%, 100% { opacity: .45; transform: scale(.8) rotate(0); } 50% { opacity: 1; transform: scale(1.18) rotate(18deg); } }
+    @keyframes confetti-fall { to { transform: translate3d(var(--drift), 110vh, 0) rotate(var(--spin)); opacity: .1; } }
+
+    @media (max-width: 480px) { body { padding: 15px; } .card { border-radius: 25px; } }
     @media (max-width: 360px) { .actions { flex-direction: column; } }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
+  <div class="glow glow-one" aria-hidden="true"></div>
+  <div class="glow glow-two" aria-hidden="true"></div>
   <main class="card">
-    <div class="cake" aria-hidden="true">🎂</div>
+    <div class="cake" aria-hidden="true">🎂<span class="sparkle sparkle-a">✦</span><span class="sparkle sparkle-b">✦</span></div>
     <h1>Tug‘ilgan kuning bilan!</h1>
     <p class="intro">Ismingizni yozing — siz uchun samimiy tabrik tayyorlaymiz.</p>
 
@@ -99,6 +222,24 @@
       wish.textContent = wishes[index];
     }
 
+    function celebrate() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const colors = ['#c65377', '#efbd68', '#9e8bd8', '#75b7a4', '#f08d75'];
+      for (let i = 0; i < 54; i++) {
+        const piece = document.createElement('i');
+        piece.className = 'confetti';
+        piece.setAttribute('aria-hidden', 'true');
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty('--drift', `${Math.random() * 180 - 90}px`);
+        piece.style.setProperty('--spin', `${Math.random() * 900 - 450}deg`);
+        piece.style.setProperty('--fall-time', `${2 + Math.random() * 1.7}s`);
+        piece.style.animationDelay = `${Math.random() * .45}s`;
+        document.body.appendChild(piece);
+        piece.addEventListener('animationend', () => piece.remove(), { once: true });
+      }
+    }
+
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const name = nameInput.value.trim();
@@ -116,6 +257,7 @@
       result.classList.remove('visible');
       requestAnimationFrame(() => result.classList.add('visible'));
       actions.classList.add('visible');
+      celebrate();
     });
 
     document.getElementById('refresh').addEventListener('click', () => {
