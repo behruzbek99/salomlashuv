@@ -265,3 +265,50 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .letter-sheet { width: 88%; padding-inline: 14px; }
   .letter-opened .letter-sheet { transform: translate(-50%, -110px); }
 }
+
+/* Put the envelope in the center of the experience after a greeting is made. */
+.main-layout.has-greeting { width: min(980px, calc(100% - 40px)); grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 0; margin: auto; }
+.main-layout.has-greeting .intro-panel,
+.main-layout.has-greeting .composer form,
+.main-layout.has-greeting .composer-heading { display: none; }
+.main-layout.has-greeting .composer { width: 100%; max-width: 880px; padding: 0; border: 0; background: transparent; box-shadow: none; animation: none; }
+.main-layout.has-greeting .greeting-card { display: flex; min-height: min(76vh, 760px); flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 26px 12px; overflow: visible; border: 0; background: transparent; box-shadow: none; animation: none; }
+.main-layout.has-greeting .envelope-scene { width: min(78vw, 760px); height: clamp(330px, 46vh, 455px); margin: 0 auto 4px; }
+.main-layout.has-greeting .envelope-back,
+.main-layout.has-greeting .envelope-front { right: 3%; bottom: 4%; left: 3%; height: 58%; }
+.main-layout.has-greeting .envelope-back { border-radius: 16px; box-shadow: 0 24px 54px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.45); }
+.main-layout.has-greeting .envelope-front { border-radius: 0 0 16px 16px; }
+.main-layout.has-greeting .envelope-flap { top: 38%; right: 3%; left: 3%; height: 32%; }
+.main-layout.has-greeting .letter-sheet { bottom: 6%; width: 76%; height: 132px; min-height: 0; overflow: hidden; padding: 22px clamp(18px, 4vw, 42px); border-radius: 8px; opacity: .98; transform: translate(-50%, 0); transition: height .6s .42s, transform .9s cubic-bezier(.18,.88,.28,1.15), box-shadow .5s .4s; }
+.main-layout.has-greeting .letter-sheet .greeting-topline { font-size: .62rem; }
+.main-layout.has-greeting .letter-sheet h3 { margin-top: 12px; font-size: clamp(1.35rem, 3.6vw, 2rem); }
+.main-layout.has-greeting .letter-sheet .wish-copy { font-size: clamp(.87rem, 1.5vw, 1rem); line-height: 1.8; }
+.main-layout.has-greeting .letter-sheet .closing-line { font-size: .95rem; }
+.main-layout.has-greeting .envelope-seal { top: 56%; width: 42px; height: 42px; font-size: 1.1rem; }
+.main-layout.has-greeting .letter-opened .letter-sheet,
+.main-layout.has-greeting .letter-opened .letter-sheet { height: auto; overflow: visible; transform: translate(-50%, -165px); box-shadow: 0 28px 65px rgba(0,0,0,.24); }
+.main-layout.has-greeting .letter-opened .envelope-front { transform: translateY(220px); }
+.main-layout.has-greeting .letter-opened .envelope-flap { transform: rotateX(180deg); }
+.main-layout.has-greeting .confetti-layer { inset: 0 0 auto; height: 300px; }
+.main-layout.has-greeting .open-letter-button { min-height: 48px; margin: 0 auto; font-size: .83rem; }
+.main-layout.has-greeting .open-letter-button.is-open { border-color: transparent; background: transparent; box-shadow: none; color: #d1b77f; cursor: default; }
+.main-layout.has-greeting .action-grid { width: min(100%, 560px); margin-top: 4px; }
+.main-layout.has-greeting .sound-control { width: min(100%, 560px); }
+.main-layout.has-greeting .notice { color: #eadfca; }
+.main-layout.has-greeting .reset-button { color: #bdc5d0; }
+@media (max-width: 850px) {
+  .main-layout.has-greeting { width: calc(100% - 28px); margin: auto; }
+  .main-layout.has-greeting .greeting-card { min-height: 78vh; }
+  .main-layout.has-greeting .envelope-scene { width: min(92vw, 650px); height: clamp(310px, 44vh, 390px); }
+  .main-layout.has-greeting .letter-sheet { width: 84%; padding-inline: 22px; }
+  .main-layout.has-greeting .letter-opened .letter-sheet { transform: translate(-50%, -145px); }
+}
+@media (max-width: 520px) {
+  .main-layout.has-greeting { width: calc(100% - 22px); }
+  .main-layout.has-greeting .greeting-card { min-height: 76vh; padding: 18px 3px; }
+  .main-layout.has-greeting .envelope-scene { width: 98%; height: 330px; }
+  .main-layout.has-greeting .letter-sheet { width: 88%; height: 120px; padding: 18px 16px; }
+  .main-layout.has-greeting .letter-opened .letter-sheet { transform: translate(-50%, -135px); }
+  .main-layout.has-greeting .letter-sheet .greeting-topline { font-size: .5rem; }
+  .main-layout.has-greeting .letter-sheet h3 { font-size: 1.2rem; }
+}

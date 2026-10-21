@@ -82,11 +82,45 @@ function App() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState<Notice>(null);
   const [celebration, setCelebration] = useState(0);
+  const [confettiBurst, setConfettiBurst] = useState(0);
   const [letterOpened, setLetterOpened] = useState(Boolean(shared.name));
   const [customOpen, setCustomOpen] = useState(Boolean(shared.customMessage));
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewBusy, setPreviewBusy] = useState(false);
   const { isPlaying, volume, setVolume, toggle: toggleMusic, stop: stopMusic } = useBirthdayMusic();
+
+  const playCelebrationSound = async () => {
+    if (!('AudioContext' in window)) return;
+    const audio = new window.AudioContext();
+    try {
+      await audio.resume();
+      const now = audio.currentTime;
+      [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((frequency, index) => {
+        const start = now + index * 0.12;
+        const oscillator = audio.createOscillator();
+        const volume = audio.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, start);
+        volume.gain.setValueAtTime(0.0001, start);
+        volume.gain.exponentialRampToValueAtTime(0.11, start + 0.025);
+        volume.gain.exponentialRampToValueAtTime(0.0001, start + 0.65);
+        oscillator.connect(volume);
+        volume.connect(audio.destination);
+        oscillator.start(start);
+        oscillator.stop(start + 0.68);
+      });
+      window.setTimeout(() => void audio.close(), 1100);
+    } catch {
+      await audio.close();
+    }
+  };
+
+  const openLetter = () => {
+    if (letterOpened) return;
+    setLetterOpened(true);
+    setConfettiBurst((value) => value + 1);
+    void playCelebrationSound();
+  };
 
   const createGreeting = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -222,7 +256,7 @@ function App() {
         </a>
       </header>
 
-      <main className="main-layout">
+      <main className={`main-layout ${greeting ? 'has-greeting' : ''}`}>
         <section className="intro-panel" aria-labelledby="page-title">
           <p className="eyebrow"><span /> TUG‘ILGAN KUN UCHUN</p>
           <h1 id="page-title">Samimiy so‘zlar,<br /><em>unutilmas lahza.</em></h1>
@@ -319,7 +353,7 @@ function App() {
 
           {greeting && (
             <section className={`greeting-card ${letterOpened ? 'letter-opened' : ''}`} data-theme={theme} aria-live="polite" aria-atomic="true" key={celebration}>
-              <ConfettiBurst />
+              <ConfettiBurst key={confettiBurst} />
               <div className="envelope-scene" aria-hidden={!letterOpened}>
                 <div className="envelope-back" />
                 <article className="letter-sheet">
@@ -332,7 +366,9 @@ function App() {
                 <div className="envelope-front"><span className="envelope-seal">✦</span></div>
                   <div className="envelope-flap" />
               </div>
-              {!letterOpened && <button className="open-letter-button" onClick={() => setLetterOpened(true)} type="button">Konvertni ochish <span aria-hidden="true">→</span></button>}
+              <button aria-expanded={letterOpened} className={`open-letter-button ${letterOpened ? 'is-open' : ''}`} onClick={openLetter} type="button">
+                {letterOpened ? 'Xat ochildi' : 'Konvertni ochish'} <span aria-hidden="true">{letterOpened ? '✓' : '→'}</span>
+              </button>
               <div className="action-grid">
                 <button className="action-button" onClick={refreshWish} type="button"><Icon name="refresh" /> Boshqa tilak</button>
                 <button className="action-button" onClick={() => void copyGreeting()} type="button"><Icon name="copy" /> Nusxalash</button>
