@@ -1,44 +1,49 @@
-import { useMemo, useState, type FormEvent, type CSSProperties } from 'react';
-import { getWish, getWishAt, getWishCount, makeGreeting, type GreetingTone } from './greetings';
-import { copyText, makeShareUrl } from './share';
+import { useEffect, useMemo, useState, type FormEvent, type CSSProperties } from 'react';
+import { getWish, getWishAt, getWishCount, makeGreeting, type GreetingTone, type RecipientRelation } from './greetings';
+import { copyText, makeShareUrl, readShareData, type GreetingTheme } from './share.mjs';
+import { downloadGreetingPng, renderGreetingPng } from './exportCard';
 import { useBirthdayMusic } from './useBirthdayMusic';
 
 type Notice = { kind: 'success' | 'error'; text: string } | null;
 
-function readSharedGreeting() {
-  const params = new URLSearchParams(window.location.search);
-  const name = (params.get('name') ?? '').trim().slice(0, 60);
-  const tone: GreetingTone = params.get('tone') === 'formal' ? 'formal' : 'warm';
-  const wishIndex = Number(params.get('wish'));
-  const validWish = Number.isInteger(wishIndex) && wishIndex >= 0 && wishIndex < getWishCount(tone);
-  return {
-    name,
-    tone,
-    wishIndex: validWish ? wishIndex : name ? 0 : -1,
-    wish: name ? getWishAt(tone, validWish ? wishIndex : 0) : '',
-  };
-}
-
 function ConfettiBurst() {
-  const pieces = useMemo(() => Array.from({ length: 34 }, (_, index) => ({
+  const pieces = useMemo(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return [];
+    return Array.from({ length: 36 }, (_, index) => ({
     id: index,
     x: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 0.45}s`,
-    drift: `${Math.random() * 140 - 70}px`,
-    hue: `${Math.floor(Math.random() * 42 + 28)}deg`,
-  })), []);
+    delay: `${Math.random() * 0.65}s`,
+    drift: `${Math.random() * 190 - 95}px`,
+    hue: `${Math.floor(Math.random() * 48 + 24)}deg`,
+    round: index % 3 === 0,
+    }));
+  }, []);
 
   return (
     <div className="confetti-layer" aria-hidden="true">
       {pieces.map((piece) => (
         <span
-          className="confetti-piece"
+          className={`confetti-piece ${piece.round ? 'confetti-round' : ''}`}
           key={piece.id}
           style={{ '--x': piece.x, '--delay': piece.delay, '--drift': piece.drift, '--hue': piece.hue } as CSSProperties}
         />
       ))}
     </div>
   );
+}
+
+type IconName = 'refresh' | 'copy' | 'share' | 'download' | 'image' | 'music';
+
+function Icon({ name }: { name: IconName }) {
+  const paths: Record<IconName, string> = {
+    refresh: 'M20 7v5h-5M4 17v-5h5M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2',
+    copy: 'M8 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3M5 8h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z',
+    share: 'M12 16V4m-5 5 5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6',
+    download: 'M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3',
+    image: 'M4 5h16v14H4zM4 15l5-5 4 4 2-2 5 5M15 9h.01',
+    music: 'M9 18V5l12-2v13M9 18a3 2 0 1 1-3-2.8c1.7-.4 3 .5 3 2.8Zm12-2a3 2 0 1 1-3-2.8c1.7-.4 3 .5 3 2.8Z',
+  };
+  return <svg className="action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d={paths[name]} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
 function CakeMark() {
@@ -53,16 +58,35 @@ function CakeMark() {
 }
 
 function App() {
-  const shared = useMemo(readSharedGreeting, []);
+  const shared = useMemo(() => {
+    const data = readShareData(window.location.href);
+    const validWish = data.wishIndex >= 0 && data.wishIndex < getWishCount(data.tone, data.relation);
+    return {
+      ...data,
+      wishIndex: validWish ? data.wishIndex : data.name && !data.customMessage ? 0 : -1,
+      wish: data.customMessage || (data.name ? getWishAt(data.tone, validWish ? data.wishIndex : 0, data.relation) : ''),
+    };
+  }, []);
   const [name, setName] = useState(shared.name);
   const [tone, setTone] = useState<GreetingTone>(shared.tone);
-  const [greeting, setGreeting] = useState(shared.name ? makeGreeting(shared.name, shared.tone) : '');
+  const [relation, setRelation] = useState<RecipientRelation>(shared.relation);
+  const [customMessage, setCustomMessage] = useState(shared.customMessage);
+  const [theme, setTheme] = useState<GreetingTheme>(shared.theme);
+  const [greeting, setGreeting] = useState(shared.name ? makeGreeting(shared.name, shared.tone, shared.relation) : '');
   const [wish, setWish] = useState(shared.wish);
   const [wishIndex, setWishIndex] = useState(shared.wishIndex);
+  const [cardName, setCardName] = useState(shared.name);
+  const [cardTone, setCardTone] = useState<GreetingTone>(shared.tone);
+  const [cardRelation, setCardRelation] = useState<RecipientRelation>(shared.relation);
+  const [activeCustomMessage, setActiveCustomMessage] = useState(shared.customMessage);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState<Notice>(null);
   const [celebration, setCelebration] = useState(0);
-  const { isPlaying, toggle: toggleMusic, stop: stopMusic } = useBirthdayMusic();
+  const [letterOpened, setLetterOpened] = useState(Boolean(shared.name));
+  const [customOpen, setCustomOpen] = useState(Boolean(shared.customMessage));
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const { isPlaying, volume, setVolume, toggle: toggleMusic, stop: stopMusic } = useBirthdayMusic();
 
   const createGreeting = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -73,24 +97,32 @@ function App() {
       return;
     }
 
-    const nextWish = getWish(tone, wishIndex);
+    const nextWish = getWish(tone, wishIndex, relation);
     setName(cleanName);
-    setGreeting(makeGreeting(cleanName, tone));
-    setWish(nextWish.text);
-    setWishIndex(nextWish.index);
+    setCardName(cleanName);
+    setCardTone(tone);
+    setCardRelation(relation);
+    setGreeting(makeGreeting(cleanName, tone, relation));
+    const personalMessage = customMessage.trim().slice(0, 360);
+    setActiveCustomMessage(personalMessage);
+    setWish(personalMessage || nextWish.text);
+    setWishIndex(personalMessage ? -1 : nextWish.index);
+    setLetterOpened(false);
     setError('');
     setNotice(null);
     setCelebration((value) => value + 1);
   };
 
   const refreshWish = () => {
-    const nextWish = getWish(tone, wishIndex);
+    const nextWish = getWish(cardTone, wishIndex, cardRelation);
+    setCustomMessage('');
+    setActiveCustomMessage('');
     setWish(nextWish.text);
     setWishIndex(nextWish.index);
     setNotice(null);
   };
 
-  const shareLink = makeShareUrl(name, tone, wishIndex);
+  const shareLink = makeShareUrl(cardName, cardTone, wishIndex, theme, activeCustomMessage, cardRelation);
   const cardText = `${greeting}\n\n${wish}`;
 
   const copyGreeting = async () => {
@@ -120,35 +152,74 @@ function App() {
 
   const handleMusic = async () => {
     try {
-      await toggleMusic();
-      setNotice(isPlaying ? null : { kind: 'success', text: 'Mayin kuy yoqildi.' });
+      const started = await toggleMusic();
+      setNotice(started ? { kind: 'success', text: 'Mayin kuy yoqildi.' } : null);
     } catch {
       setNotice({ kind: 'error', text: 'Bu brauzerda kuy ijro etilmadi.' });
     }
   };
 
+  const handleDownload = async () => {
+    try {
+      await downloadGreetingPng(greeting, wish, theme);
+      setNotice({ kind: 'success', text: 'Tabrik rasmi yuklab olindi.' });
+    } catch {
+      setNotice({ kind: 'error', text: 'Rasmni tayyorlab bo‘lmadi.' });
+    }
+  };
+
+  const handlePreview = async () => {
+    setPreviewBusy(true);
+    try {
+      const blob = await renderGreetingPng(greeting, wish, theme);
+      setPreviewUrl(URL.createObjectURL(blob));
+      setNotice(null);
+    } catch {
+      setNotice({ kind: 'error', text: 'Tabrik rasmini tayyorlab bo‘lmadi.' });
+    } finally {
+      setPreviewBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!previewUrl) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setPreviewUrl('');
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const startOver = () => {
     void stopMusic();
     setName('');
+    setCardName('');
+    setCardTone('warm');
+    setCardRelation('friend');
     setGreeting('');
+    setLetterOpened(false);
     setWish('');
     setWishIndex(-1);
+    setCustomMessage('');
+    setCustomOpen(false);
+    setActiveCustomMessage('');
     setNotice(null);
+    setPreviewUrl('');
     setError('');
     window.history.replaceState({}, '', window.location.pathname);
     document.getElementById('recipient-name')?.focus();
   };
 
   return (
-    <div className="app-shell">
-      <div className="ambient ambient-one" aria-hidden="true" />
-      <div className="ambient ambient-two" aria-hidden="true" />
+    <div className="app-shell" data-theme={theme}>
       <header className="topbar">
         <a className="brand" href={window.location.pathname} aria-label="Tabriknoma bosh sahifasi">
           <span className="brand-icon"><CakeMark /></span>
           <span>Tabriknoma</span>
         </a>
-        <span className="version-tag">YANGI TALQIN <b>02</b></span>
       </header>
 
       <main className="main-layout">
@@ -184,6 +255,35 @@ function App() {
             />
             {error && <p className="field-error" id="name-error" role="alert">{error}</p>}
 
+            <details className="custom-message" open={customOpen} onToggle={(event) => setCustomOpen(event.currentTarget.open)}>
+              <summary>O‘z tilagingiz <span>Ixtiyoriy</span></summary>
+              <textarea
+                id="custom-message"
+                maxLength={360}
+                onChange={(event) => setCustomMessage(event.target.value)}
+                placeholder="Yurakdan chiqqan so‘zlaringizni yozing..."
+                rows={3}
+                value={customMessage}
+              />
+              <p className="character-count">{customMessage.length}/360</p>
+            </details>
+
+            <fieldset className="relationship-picker">
+              <legend>Kim uchun?</legend>
+              {([
+                ['friend', 'Do‘st', '♡'],
+                ['parent', 'Ota-ona', '⌂'],
+                ['partner', 'Juftim', '♥'],
+                ['colleague', 'Hamkasb', '✧'],
+              ] as const).map(([value, label, mark]) => (
+                <label className={`relationship-option ${relation === value ? 'selected' : ''}`} key={value}>
+                  <input checked={relation === value} name="relation" onChange={() => setRelation(value)} type="radio" />
+                  <span className="relationship-mark" aria-hidden="true">{mark}</span>
+                  <span>{label}</span>
+                </label>
+              ))}
+            </fieldset>
+
             <fieldset className="tone-picker">
               <legend>Tabrik ohangi</legend>
               <label className={`tone-option ${tone === 'warm' ? 'selected' : ''}`}>
@@ -198,35 +298,82 @@ function App() {
               </label>
             </fieldset>
 
+            <fieldset className="theme-picker">
+              <legend>Rang mavzusi</legend>
+              <label className={`theme-option ${theme === 'midnight' ? 'selected' : ''}`}>
+                <input checked={theme === 'midnight'} name="theme" onChange={() => setTheme('midnight')} type="radio" />
+                <span className="theme-swatch swatch-midnight" aria-hidden="true" />
+                <span>Tun va oltin</span>
+              </label>
+              <label className={`theme-option ${theme === 'sage' ? 'selected' : ''}`}>
+                <input checked={theme === 'sage'} name="theme" onChange={() => setTheme('sage')} type="radio" />
+                <span className="theme-swatch swatch-sage" aria-hidden="true" />
+                <span>Sokin yashil</span>
+              </label>
+            </fieldset>
+
             <button className="primary-button" type="submit">
               <span>Tabrikni yaratish</span><span className="button-arrow" aria-hidden="true">↗</span>
             </button>
           </form>
 
           {greeting && (
-            <section className="greeting-card" aria-live="polite" aria-atomic="true" key={celebration}>
+            <section className={`greeting-card ${letterOpened ? 'letter-opened' : ''}`} data-theme={theme} aria-live="polite" aria-atomic="true" key={celebration}>
               <ConfettiBurst />
+              <div className="envelope-scene" aria-hidden={!letterOpened}>
+                <div className="envelope-back" />
+                <article className="letter-sheet">
               <div className="greeting-topline"><span>MAXSUS SIZ UCHUN</span><span className="mini-spark" aria-hidden="true">✦</span></div>
               <h3>{greeting}</h3>
-              <p className="wish-copy">{wish}</p>
+              <p className="wish-copy" key={wishIndex}>{wish}</p>
               <div className="greeting-divider"><span>✳</span></div>
               <p className="closing-line">Eng ezgu tilaklar bilan</p>
+                </article>
+                <div className="envelope-front"><span className="envelope-seal">✦</span></div>
+                  <div className="envelope-flap" />
+              </div>
+              {!letterOpened && <button className="open-letter-button" onClick={() => setLetterOpened(true)} type="button">Konvertni ochish <span aria-hidden="true">→</span></button>}
               <div className="action-grid">
-                <button className="action-button" onClick={refreshWish} type="button"><span aria-hidden="true">⟳</span> Boshqa tilak</button>
-                <button className="action-button" onClick={() => void copyGreeting()} type="button"><span aria-hidden="true">▢</span> Nusxalash</button>
-                <button className="action-button action-share" onClick={() => void shareGreeting()} type="button"><span aria-hidden="true">↗</span> Ulashish</button>
-                <button className={`action-button ${isPlaying ? 'is-playing' : ''}`} onClick={() => void handleMusic()} type="button" aria-pressed={isPlaying}><span aria-hidden="true">♫</span> {isPlaying ? 'Kuy chalmoqda' : 'Mayin kuy'}</button>
+                <button className="action-button" onClick={refreshWish} type="button"><Icon name="refresh" /> Boshqa tilak</button>
+                <button className="action-button" onClick={() => void copyGreeting()} type="button"><Icon name="copy" /> Nusxalash</button>
+                <button className="action-button action-share" onClick={() => void shareGreeting()} type="button"><Icon name="share" /> Ulashish</button>
+                <button className="action-button" disabled={previewBusy} onClick={() => void handlePreview()} type="button"><Icon name="image" /> {previewBusy ? 'Tayyorlanmoqda' : 'Rasmni ko‘rish'}</button>
+                <button className="action-button" onClick={() => void handleDownload()} type="button"><Icon name="download" /> PNG yuklab olish</button>
+              </div>
+              <div className="sound-control">
+                <button className={`sound-button ${isPlaying ? 'is-playing' : ''}`} onClick={() => void handleMusic()} type="button" aria-pressed={isPlaying}>
+                  <Icon name="music" /> {isPlaying ? 'Kuy chalmoqda' : 'Mayin kuy'}
+                </button>
+                {isPlaying && (
+                  <label className="volume-control" htmlFor="music-volume">
+                    <span className="volume-label">Ovoz</span>
+                    <input className="volume-slider" id="music-volume" aria-label="Kuy ovoz balandligi" max="100" min="0" onChange={(event) => setVolume(Number(event.target.value))} type="range" value={volume} />
+                    <output htmlFor="music-volume">{volume}%</output>
+                  </label>
+                )}
               </div>
               {notice && <p className={`notice ${notice.kind}`} role="status">{notice.text}</p>}
               <button className="reset-button" onClick={startOver} type="button">Boshqa tabrik yaratish</button>
             </section>
           )}
 
-          {!greeting && <p className="privacy-note"><span aria-hidden="true">◇</span> Shaxsiy ma’lumot saqlanmaydi</p>}
+          {!greeting && <p className="privacy-note"><span aria-hidden="true">◇</span> Ma’lumotlar serverga yuborilmaydi</p>}
         </section>
       </main>
 
-      <footer className="site-footer"><span>Mehr bilan tayyorlandi</span><span className="footer-dot">·</span><span>Tabriknoma <b>V2</b></span></footer>
+      <footer className="site-footer"><span>Mehr bilan tayyorlandi</span><span className="footer-dot">·</span><span>Tabriknoma</span></footer>
+      {previewUrl && (
+        <div className="preview-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setPreviewUrl(''); }}>
+          <section className="preview-dialog" aria-labelledby="preview-title" aria-modal="true" role="dialog">
+            <div className="preview-heading">
+              <h2 id="preview-title">Tabrik rasmi</h2>
+              <button autoFocus className="preview-close" aria-label="Yopish" onClick={() => setPreviewUrl('')} type="button">×</button>
+            </div>
+            <img alt={`${greeting} — tabrik rasmi`} className="preview-image" src={previewUrl} />
+            <button className="primary-button preview-download" onClick={() => void handleDownload()} type="button"><Icon name="download" /> PNG yuklab olish</button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

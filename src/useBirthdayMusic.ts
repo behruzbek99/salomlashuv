@@ -6,7 +6,15 @@ export function useBirthdayMusic() {
   const contextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<number | null>(null);
   const stepRef = useRef(0);
+  const volumeRef = useRef(0.45);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolumeState] = useState(45);
+
+  const setVolume = useCallback((value: number) => {
+    const safeValue = Math.min(100, Math.max(0, value));
+    volumeRef.current = safeValue / 100;
+    setVolumeState(safeValue);
+  }, []);
 
   const stop = useCallback(async () => {
     if (timerRef.current !== null) {
@@ -30,7 +38,7 @@ export function useBirthdayMusic() {
     oscillator.frequency.value = melody[stepRef.current % melody.length] ?? 523.25;
     stepRef.current += 1;
     volume.gain.setValueAtTime(0.0001, now);
-    volume.gain.exponentialRampToValueAtTime(0.045, now + 0.04);
+    volume.gain.exponentialRampToValueAtTime(Math.max(0.0001, 0.1 * volumeRef.current), now + 0.04);
     volume.gain.exponentialRampToValueAtTime(0.0001, now + 0.46);
     oscillator.connect(volume);
     volume.connect(context.destination);
@@ -48,7 +56,8 @@ export function useBirthdayMusic() {
       return false;
     }
 
-    const AudioContextConstructor = window.AudioContext;
+    const AudioContextConstructor = window.AudioContext
+      ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextConstructor) {
       throw new Error('Bu brauzer audio ijrosini qo‘llab-quvvatlamaydi.');
     }
@@ -66,5 +75,5 @@ export function useBirthdayMusic() {
     void contextRef.current?.close();
   }, []);
 
-  return { isPlaying, toggle, stop };
+  return { isPlaying, volume, setVolume, toggle, stop };
 }
