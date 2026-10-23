@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState, type FormEvent, type CSSProperties } from 'react';
 import { getWish, getWishAt, getWishCount, makeGreeting, type GreetingTone, type RecipientRelation } from './greetings';
-import { copyText, makeShareUrl, readShareData, type GreetingTheme } from './share.mjs';
+import { copyText, makeShareUrl, readShareData, type GreetingStyle, type GreetingTheme } from './share.mjs';
 import { downloadGreetingPng, renderGreetingPng } from './exportCard';
 import { useBirthdayMusic } from './useBirthdayMusic';
 
 type Notice = { kind: 'success' | 'error'; text: string } | null;
+type DesignName = 'classic' | 'sage' | 'floral' | 'stars';
 
 function ConfettiBurst() {
   const pieces = useMemo(() => {
@@ -72,6 +73,11 @@ function App() {
   const [relation, setRelation] = useState<RecipientRelation>(shared.relation);
   const [customMessage, setCustomMessage] = useState(shared.customMessage);
   const [theme, setTheme] = useState<GreetingTheme>(shared.theme);
+  const [cardStyle, setCardStyle] = useState<GreetingStyle>(shared.style);
+  const [shareOpens, setShareOpens] = useState(shared.openOnArrival);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [editingGreeting, setEditingGreeting] = useState(false);
+  const [sharePreviewOpen, setSharePreviewOpen] = useState(false);
   const [greeting, setGreeting] = useState(shared.name ? makeGreeting(shared.name, shared.tone, shared.relation) : '');
   const [wish, setWish] = useState(shared.wish);
   const [wishIndex, setWishIndex] = useState(shared.wishIndex);
@@ -83,14 +89,14 @@ function App() {
   const [notice, setNotice] = useState<Notice>(null);
   const [celebration, setCelebration] = useState(0);
   const [confettiBurst, setConfettiBurst] = useState(0);
-  const [letterOpened, setLetterOpened] = useState(Boolean(shared.name));
+  const [letterOpened, setLetterOpened] = useState(Boolean(shared.name) && shared.openOnArrival);
   const [customOpen, setCustomOpen] = useState(Boolean(shared.customMessage));
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewBusy, setPreviewBusy] = useState(false);
   const { isPlaying, volume, setVolume, toggle: toggleMusic, stop: stopMusic } = useBirthdayMusic();
 
   const playCelebrationSound = async () => {
-    if (!('AudioContext' in window)) return;
+    if (!soundEnabled || !('AudioContext' in window)) return;
     const audio = new window.AudioContext();
     try {
       await audio.resume();
@@ -120,6 +126,15 @@ function App() {
     setLetterOpened(true);
     setConfettiBurst((value) => value + 1);
     void playCelebrationSound();
+    if ('vibrate' in navigator) {
+      (navigator as Navigator & { vibrate: (pattern: number) => boolean }).vibrate(35);
+    }
+  };
+
+  const activeDesign: DesignName = theme === 'sage' && cardStyle === 'classic' ? 'sage' : cardStyle;
+  const selectDesign = (design: DesignName) => {
+    setTheme(design === 'sage' ? 'sage' : 'midnight');
+    setCardStyle(design === 'floral' || design === 'stars' ? design : 'classic');
   };
 
   const createGreeting = (event: FormEvent<HTMLFormElement>) => {
@@ -142,6 +157,8 @@ function App() {
     setWish(personalMessage || nextWish.text);
     setWishIndex(personalMessage ? -1 : nextWish.index);
     setLetterOpened(false);
+    setShareOpens(true);
+    setEditingGreeting(false);
     setError('');
     setNotice(null);
     setCelebration((value) => value + 1);
@@ -156,7 +173,7 @@ function App() {
     setNotice(null);
   };
 
-  const shareLink = makeShareUrl(cardName, cardTone, wishIndex, theme, activeCustomMessage, cardRelation);
+  const shareLink = makeShareUrl(cardName, cardTone, wishIndex, theme, activeCustomMessage, cardRelation, undefined, cardStyle, shareOpens);
   const cardText = `${greeting}\n\n${wish}`;
 
   const copyGreeting = async () => {
@@ -227,6 +244,15 @@ function App() {
     };
   }, [previewUrl]);
 
+  useEffect(() => {
+    if (!sharePreviewOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSharePreviewOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [sharePreviewOpen]);
+
   const startOver = () => {
     void stopMusic();
     setName('');
@@ -235,6 +261,7 @@ function App() {
     setCardRelation('friend');
     setGreeting('');
     setLetterOpened(false);
+    setEditingGreeting(false);
     setWish('');
     setWishIndex(-1);
     setCustomMessage('');
@@ -256,7 +283,7 @@ function App() {
         </a>
       </header>
 
-      <main className={`main-layout ${greeting ? 'has-greeting' : ''}`}>
+      <main className={`main-layout ${greeting && !editingGreeting ? 'has-greeting' : ''}`}>
         <section className="intro-panel" aria-labelledby="page-title">
           <p className="eyebrow"><span /> TUG‘ILGAN KUN UCHUN</p>
           <h1 id="page-title">Samimiy so‘zlar,<br /><em>unutilmas lahza.</em></h1>
@@ -332,30 +359,17 @@ function App() {
               </label>
             </fieldset>
 
-            <fieldset className="theme-picker">
-              <legend>Rang mavzusi</legend>
-              <label className={`theme-option ${theme === 'midnight' ? 'selected' : ''}`}>
-                <input checked={theme === 'midnight'} name="theme" onChange={() => setTheme('midnight')} type="radio" />
-                <span className="theme-swatch swatch-midnight" aria-hidden="true" />
-                <span>Tun va oltin</span>
-              </label>
-              <label className={`theme-option ${theme === 'sage' ? 'selected' : ''}`}>
-                <input checked={theme === 'sage'} name="theme" onChange={() => setTheme('sage')} type="radio" />
-                <span className="theme-swatch swatch-sage" aria-hidden="true" />
-                <span>Sokin yashil</span>
-              </label>
-            </fieldset>
-
             <button className="primary-button" type="submit">
               <span>Tabrikni yaratish</span><span className="button-arrow" aria-hidden="true">↗</span>
             </button>
           </form>
 
           {greeting && (
-            <section className={`greeting-card ${letterOpened ? 'letter-opened' : ''}`} data-theme={theme} aria-live="polite" aria-atomic="true" key={celebration}>
+            <section className={`greeting-card ${letterOpened ? 'letter-opened' : ''}`} data-theme={theme} data-style={cardStyle} aria-live="polite" aria-atomic="true" key={celebration}>
               <ConfettiBurst key={confettiBurst} />
               <div className="envelope-scene" aria-hidden={!letterOpened}>
                 <div className="envelope-back" />
+                <div className="envelope-address"><span>Kimga</span><strong>{cardName}</strong></div>
                 <article className="letter-sheet">
               <div className="greeting-topline"><span>MAXSUS SIZ UCHUN</span><span className="mini-spark" aria-hidden="true">✦</span></div>
               <h3>{greeting}</h3>
@@ -369,24 +383,48 @@ function App() {
               <button aria-expanded={letterOpened} className={`open-letter-button ${letterOpened ? 'is-open' : ''}`} onClick={openLetter} type="button">
                 {letterOpened ? 'Xat ochildi' : 'Konvertni ochish'} <span aria-hidden="true">{letterOpened ? '✓' : '→'}</span>
               </button>
+              <div className="greeting-tools">
+                <button className="edit-greeting-button" onClick={() => setEditingGreeting((editing) => !editing)} type="button">{editingGreeting ? 'Tahrirlashni yopish' : 'Tabrikni tahrirlash'}</button>
+                <button className="recipient-preview-button" onClick={() => setSharePreviewOpen(true)} type="button">Ulashishdan oldin ko‘rish</button>
+              </div>
+              <details className="extra-settings">
+                <summary>Qo‘shimcha sozlamalar</summary>
+              <div className="reveal-options">
+                <fieldset className="share-opening">
+                  <legend>Havola ochilganda</legend>
+                  <label className={shareOpens ? 'selected' : ''}><input checked={shareOpens} name="share-opening" onChange={() => setShareOpens(true)} type="radio" /> Xat ochiq</label>
+                  <label className={!shareOpens ? 'selected' : ''}><input checked={!shareOpens} name="share-opening" onChange={() => setShareOpens(false)} type="radio" /> Avval konvert</label>
+                </fieldset>
+                <fieldset className="design-picker">
+                  <legend>Ko‘rinish</legend>
+                  {([['classic', 'Oltin'], ['sage', 'Yashil'], ['floral', 'Gul'], ['stars', 'Yulduz']] as const).map(([value, label]) => (
+                    <label className={activeDesign === value ? 'selected' : ''} key={value}><input checked={activeDesign === value} name="card-design" onChange={() => selectDesign(value)} type="radio" /> {label}</label>
+                  ))}
+                </fieldset>
+                <button aria-pressed={soundEnabled} className="sound-toggle" onClick={() => setSoundEnabled((enabled) => !enabled)} type="button">
+                  <Icon name="music" /> Bayram ovozi {soundEnabled ? 'yoqilgan' : 'o\u02bbchirilgan'}
+                </button>
+                <button className="sound-preview" disabled={!soundEnabled} onClick={() => void playCelebrationSound()} type="button">Ohangni tinglash</button>
+                <div className="sound-control">
+                  <button className={`sound-button ${isPlaying ? 'is-playing' : ''}`} onClick={() => void handleMusic()} type="button" aria-pressed={isPlaying}>
+                    <Icon name="music" /> {isPlaying ? 'Mayin kuy chalmoqda' : 'Mayin kuy'}
+                  </button>
+                  {isPlaying && (
+                    <label className="volume-control" htmlFor="music-volume">
+                      <span className="volume-label">Ovoz</span>
+                      <input className="volume-slider" id="music-volume" aria-label="Kuy ovoz balandligi" max="100" min="0" onChange={(event) => setVolume(Number(event.target.value))} type="range" value={volume} />
+                      <output htmlFor="music-volume">{volume}%</output>
+                    </label>
+                  )}
+                </div>
+              </div>
+              </details>
               <div className="action-grid">
                 <button className="action-button" onClick={refreshWish} type="button"><Icon name="refresh" /> Boshqa tilak</button>
                 <button className="action-button" onClick={() => void copyGreeting()} type="button"><Icon name="copy" /> Nusxalash</button>
                 <button className="action-button action-share" onClick={() => void shareGreeting()} type="button"><Icon name="share" /> Ulashish</button>
                 <button className="action-button" disabled={previewBusy} onClick={() => void handlePreview()} type="button"><Icon name="image" /> {previewBusy ? 'Tayyorlanmoqda' : 'Rasmni ko‘rish'}</button>
                 <button className="action-button" onClick={() => void handleDownload()} type="button"><Icon name="download" /> PNG yuklab olish</button>
-              </div>
-              <div className="sound-control">
-                <button className={`sound-button ${isPlaying ? 'is-playing' : ''}`} onClick={() => void handleMusic()} type="button" aria-pressed={isPlaying}>
-                  <Icon name="music" /> {isPlaying ? 'Kuy chalmoqda' : 'Mayin kuy'}
-                </button>
-                {isPlaying && (
-                  <label className="volume-control" htmlFor="music-volume">
-                    <span className="volume-label">Ovoz</span>
-                    <input className="volume-slider" id="music-volume" aria-label="Kuy ovoz balandligi" max="100" min="0" onChange={(event) => setVolume(Number(event.target.value))} type="range" value={volume} />
-                    <output htmlFor="music-volume">{volume}%</output>
-                  </label>
-                )}
               </div>
               {notice && <p className={`notice ${notice.kind}`} role="status">{notice.text}</p>}
               <button className="reset-button" onClick={startOver} type="button">Boshqa tabrik yaratish</button>
@@ -407,6 +445,34 @@ function App() {
             </div>
             <img alt={`${greeting} — tabrik rasmi`} className="preview-image" src={previewUrl} />
             <button className="primary-button preview-download" onClick={() => void handleDownload()} type="button"><Icon name="download" /> PNG yuklab olish</button>
+          </section>
+        </div>
+      )}
+      {sharePreviewOpen && (
+        <div className="preview-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setSharePreviewOpen(false); }}>
+          <section className="preview-dialog share-preview-dialog" aria-labelledby="share-preview-title" aria-modal="true" role="dialog">
+            <div className="preview-heading">
+              <h2 id="share-preview-title">Ulashishdan oldingi ko‘rinish</h2>
+              <button autoFocus className="preview-close" aria-label="Yopish" onClick={() => setSharePreviewOpen(false)} type="button">×</button>
+            </div>
+            <article className="recipient-card" data-theme={theme} data-style={cardStyle}>
+              {shareOpens ? (
+                <div className="recipient-open-letter">
+                  <p className="greeting-topline">MAXSUS SIZ UCHUN</p>
+                  <h3>{greeting}</h3>
+                  <p>{wish}</p>
+                  <p className="recipient-signoff">Eng ezgu tilaklar bilan</p>
+                </div>
+              ) : (
+                <div className="recipient-envelope">
+                  <span>Kimga</span><strong>{cardName}</strong>
+                  <p>Siz uchun ichida samimiy tabrik bor</p>
+                  <span className="recipient-seal">✦</span>
+                </div>
+              )}
+            </article>
+            <p className="recipient-preview-note">Havolani olgan inson shu holatni ko‘radi.</p>
+            <button className="primary-button preview-download" onClick={() => { setSharePreviewOpen(false); void shareGreeting(); }} type="button">Havolani ulashish</button>
           </section>
         </div>
       )}
